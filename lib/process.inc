@@ -1,4 +1,4 @@
 ; ========================================
-; Declarações de funções de string
+; Declarações de funções de processo
 ; ========================================
-extern strcmp 
+extern fork_exec_wait
