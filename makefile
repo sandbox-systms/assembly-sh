@@ -1,29 +1,50 @@
+# ========================================
+# Makefile para compilação do Mini Shell
+# ========================================
+
+# Definir assembler e linker
 ASM = nasm
-LD = ld 
+LD = ld
 
+# Flags para assembler
 ASMFLAGS = -f elf64
-LDFLAGS =
 
+# Flags para linker
+LDFLAGS = -m elf_x86_64
+
+# Arquivos fonte em Assembly
 SRC = src/minishell.asm \
-	 lib/string.asm \ 
-	 lib/io.asm \ 
-	 lib/process.asm 
+      lib/string.asm \
+      lib/io.asm \
+      lib/process.asm \
+      lib/builtins.asm \
+      lib/utils.asm
 
-OBJ = $(SRC:.asm=build/%.o)
+# Converter nomes de arquivos fonte para objetos
+OBJ = $(patsubst %.asm,build/%.o,$(SRC))
 
-BIN = bin/minishell 
+# Executável final
+BIN = bin/minishell
 
+# Alvo padrão (compilar tudo)
 all: $(BIN)
 
+# Regra para compilar arquivos Assembly em objetos
 build/%.o: %.asm
 	@mkdir -p $(dir $@)
 	$(ASM) $(ASMFLAGS) $< -o $@
 
+# Regra para linkar objetos e criar executável
 $(BIN): $(OBJ)
-	@mkdir -p bin 
-	$(LD) $(LDFLAGS) $< -o $@ $(BIN)
+	@mkdir -p bin
+	$(LD) $(LDFLAGS) $(OBJ) -o $@
 
-clean: rm -rf build bin 
+# Limpar arquivos gerados
+clean:
+	rm -rf build bin
 
-run: all 
-./$(BIN)
+# Compilar e executar
+run: all
+	./$(BIN)
+
+.PHONY: all clean run
