@@ -198,7 +198,12 @@ make
 ls -la bin/minishell
 ```
 
-## 💻 Uso
+## � Histórico de Versões
+
+- **v1.1 (10 de maio de 2026)**: Adicionado prompt colorido com emoji, comandos `ls` e `clear`, listagem de arquivos colorida com símbolos, documentação em estilo acadêmico.
+- **v1.0 (24 de janeiro de 2026)**: Shell básico com suporte a `cd`, `pwd`, `echo`, `help`, `exit`, execução externa via `fork` + `execve`, e parsing de argumentos.
+
+## �💻 Uso
 
 ### Execução interativa:
 ```bash

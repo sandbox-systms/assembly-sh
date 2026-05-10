@@ -1,5 +1,7 @@
 # Arquitetura Técnica do Mini Shell
 
+**Versão 1.1 — Maio 2026**
+
 Documentação detalhada sobre a implementação interna do Mini Shell em Assembly x86-64.
 
 ## 📑 Índice

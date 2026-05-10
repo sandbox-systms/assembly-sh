@@ -1,8 +1,10 @@
 # CHANGELOG & Project History
 
-História do desenvolvimento e mudanças do Mini Shell.
+Histórico de versões e alterações do Mini Shell.
 
-## 📅 Versão Atual: 1.1 (10 de maio de 2026)
+## Histórico de Versões
+
+### 📅 Versão 1.1 (10 de maio de 2026)
 
 ### ✨ Novas Características v1.1
 
