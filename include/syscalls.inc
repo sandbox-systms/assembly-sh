@@ -8,6 +8,8 @@
 %define SYS_EXECVE    59      ; Executar programa
 %define SYS_WAIT4     61      ; Aguardar conclusão de processo filho
 %define SYS_EXIT      60      ; Sair do programa
+%define SYS_CHDIR     80      ; Mudar diretório
+%define SYS_GETCWD    79      ; Obter diretório atual
 %define SYS_OPEN      2       ; Abrir arquivo
 %define SYS_CLOSE     3       ; Fechar arquivo
 %define SYS_STAT      4       ; Obter informações de arquivo

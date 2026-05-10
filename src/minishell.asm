@@ -20,7 +20,7 @@ global _start              ; Define o ponto de entrada do programa
 ; ========================================
 section .data
     ; Prompt exibido para o usuário
-    prompt db "\033[32m", 0xF0, 0x9F, 0x92, 0xBB, " user@machine mini-shell> \033[0m"
+    prompt db 0x1b, '[', '3', '2', 'm', 0xF0, 0x9F, 0x92, 0xBB, ' ', 'u','s','e','r','@','m','a','c','h','i','n','e',' ','m','i','n','i','-','s','h','e','l','l','>',' ', 0x1b, '[', '0', 'm'
     prompt_len equ $ - prompt
     prompt_zero db 0              ; Adiciona null terminator separadamente
     
@@ -28,7 +28,7 @@ section .data
     exit_cmd db "exit", 0
     
     ; Mensagem de boas-vindas
-    welcome db "Bem-vindo ao Mini Shell Assembly!", 10, "Digite 'help' para ver os comandos disponíveis.", 10, 0
+    welcome db "Bem-vindo ao Mini Shell Assembly!", 10, "Digite 'help' para ver os comandos disponíveis.", 10
     welcome_len equ $ - welcome
 
 ; ========================================

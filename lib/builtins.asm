@@ -3,9 +3,9 @@
 ; Implementa: cd, pwd, echo, help
 ; ========================================
 
-%include "../include/syscalls.inc"
-%include "io.inc"
-%include "string.inc"
+%include "include/syscalls.inc"
+%include "lib/io.inc"
+%include "lib/string.inc"
 
 ; Declarar funções globais
 global builtin_cd, builtin_pwd, builtin_echo, builtin_help, builtin_clear, builtin_ls
@@ -218,8 +218,9 @@ builtin_ls:
     mov r12, rax  ; fd
     
     ; Ler entradas do diretório
-    mov rdi, dents_buffer
-    mov rsi, 1024
+    mov rdi, r12
+    mov rsi, dents_buffer
+    mov rdx, 1024
     mov rax, SYS_GETDENTS64
     syscall
     cmp rax, 0
@@ -232,29 +233,38 @@ builtin_ls:
     syscall
     
     ; Processar entradas
+    lea rdx, [dents_buffer + r13]  ; end pointer
     mov rbx, dents_buffer
 .loop_entries:
-    cmp rbx, dents_buffer
-    add rbx, r13
+    cmp rbx, rdx
     jge .ls_done
     
     ; Obter tamanho do registro
     movzx rcx, word [rbx + 16]  ; d_reclen
     
     ; Obter nome
-    lea rsi, [rbx + 18]  ; d_name
+    lea rsi, [rbx + 19]  ; d_name
     
     ; Verificar se é . ou ..
     cmp byte [rsi], '.'
+    jne .process_entry
+    cmp byte [rsi + 1], 0
     je .next_entry
-    
+    cmp byte [rsi + 1], '.'
+    jne .process_entry
+    cmp byte [rsi + 2], 0
+    je .next_entry
+
+.process_entry:
     ; Obter tipo do arquivo
     push rbx
     push rcx
     push r13
+    mov rdx, rsi          ; salvar ponteiro para o nome
     mov rdi, rsi
     call get_file_type
     ; rax = tipo (1=dir, 2=reg, 0=unknown)
+    mov rsi, rdx          ; restaurar ponteiro para o nome
     
     ; Imprimir com cor
     call print_colored_name
@@ -392,7 +402,7 @@ print_colored_name:
 section .data
     home_dir db ".", 0
     newline db NEWLINE
-    clear_seq db "\033[2J\033[H"
+    clear_seq db 0x1b, '[', '2', 'J', 0x1b, '[', 'H'
     clear_seq_len equ $ - clear_seq
     
     ; Para ls
@@ -401,11 +411,11 @@ section .data
     ls_error_len equ $ - ls_error_msg
     
     ; Cores ANSI
-    blue_prefix db "\033[34m"
-    green_prefix db "\033[32m"
-    white_prefix db "\033[37m"
-    reset_color db "\033[0m"
-    space db " "
+    blue_prefix db 0x1b, '[', '3', '4', 'm'
+    green_prefix db 0x1b, '[', '3', '2', 'm'
+    white_prefix db 0x1b, '[', '3', '7', 'm'
+    reset_color db 0x1b, '[', '0', 'm'
+    space db " " 
     
     ; Símbolos para tipos de arquivo
     dir_symbol db "[DIR] "

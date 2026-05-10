@@ -40,6 +40,10 @@ Histórico de versões e alterações do Mini Shell.
 
 - Adição de syscalls: `SYS_OPEN`, `SYS_CLOSE`, `SYS_STAT`, `SYS_GETDENTS64`
 - Implementação de funções: `get_file_type`, `print_colored_name`
+- Correção de bug em `ls`: preservação de ponteiro de nome e offset correto para `d_name`
+- Correção de escape ANSI: uso de byte ESC real para cores
+- Remoção de terminador nulo indevido da mensagem de boas-vindas
+- Testes executados: `help`, `ls`, `pwd`, `exit`
 - Buffers adicionais: `dents_buffer`, `stat_buf`
 - Constantes ANSI para cores e símbolos
 
