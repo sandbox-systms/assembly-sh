@@ -22,10 +22,10 @@ O Mini Shell é estruturado em camadas:
 │   Loop principal, parsing, routing  │
 ├─────────────────────────────────────┤
 │        Camada de Built-ins          │
-│  cd, pwd, echo, help (builtins.asm) │
+│  cd, pwd, echo, ls, clear (builtins.asm) │
 ├─────────────────────────────────────┤
 │     Camada de Sistema Operacional   │
-│  Processos, I/O (process.asm, io)   │
+│  Processos, I/O (process.asm, io.asm) │
 ├─────────────────────────────────────┤
 │         Camada de Utilitários       │
 │ Strings, conversão (string.asm)     │

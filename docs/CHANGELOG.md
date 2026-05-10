@@ -2,9 +2,46 @@
 
 História do desenvolvimento e mudanças do Mini Shell.
 
-## 📅 Versão Atual: 1.0 (24 de janeiro de 2026)
+## 📅 Versão Atual: 1.1 (10 de maio de 2026)
 
-### ✨ Características Implementadas
+### ✨ Novas Características v1.1
+
+#### Interface do Usuário Aprimorada
+- [x] Prompt colorido com emoji 💻 e formato `user@machine`
+- [x] Códigos ANSI para realce visual
+- [x] Símbolos visuais em listagens ([DIR], [FILE], [UNK])
+
+#### Novos Comandos Built-in
+- [x] `ls` - Listagem colorida de arquivos com símbolos
+- [x] `clear` - Limpeza da tela do terminal
+
+#### Melhorias na Arquitetura
+- [x] Implementação de `getdents64` para listagem de diretórios
+- [x] Syscall `stat` para identificação de tipos de arquivo
+- [x] Buffers otimizados para operações de I/O
+- [x] Modularização aprimorada com novas funções auxiliares
+
+#### Documentação Acadêmica
+- [x] README.md reestruturado em estilo de software de pesquisa
+- [x] Seções: Abstract, Introdução, Metodologia, Implementação, Resultados, Conclusão
+- [x] Referências a trabalhos relacionados
+- [x] Documentação técnica expandida
+
+### 📈 Melhorias de Performance
+
+- **Interface Visual**: Navegação mais intuitiva com cores e símbolos
+- **Funcionalidade**: 7 comandos built-in (vs 5 na v1.0)
+- **Usabilidade**: Prompt informativo e ajuda contextual
+- **Manutenibilidade**: Código mais organizado e documentado
+
+### 🔄 Mudanças Internas
+
+- Adição de syscalls: `SYS_OPEN`, `SYS_CLOSE`, `SYS_STAT`, `SYS_GETDENTS64`
+- Implementação de funções: `get_file_type`, `print_colored_name`
+- Buffers adicionais: `dents_buffer`, `stat_buf`
+- Constantes ANSI para cores e símbolos
+
+## 📅 Versão 1.0 (24 de janeiro de 2026)
 
 #### Core Shell
 - [x] Loop interativo com prompt `mini-shell>`
@@ -92,11 +129,11 @@ bash-assembly/
 
 | Métrica | Valor |
 |---------|-------|
-| Linhas de Assembly | ~1200 |
-| Funções Públicas | 12 |
+| Linhas de Assembly | ~1400 |
+| Funções Públicas | 15 |
 | Módulos | 5 |
-| Documentação (Markdown) | ~4000 linhas |
-| Tamanho do Executável | ~2.5 KB |
+| Documentação (Markdown) | ~5000 linhas |
+| Tamanho do Executável | ~8 KB |
 
 ### 🎯 Objetivos Atingidos
 

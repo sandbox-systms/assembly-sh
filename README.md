@@ -1,5 +1,7 @@
 # Mini Shell em Assembly x86-64: Uma Implementação Educacional
 
+**Versão 1.1** - Maio 2026
+
 ## Resumo
 
 Este trabalho apresenta uma implementação minimalista de shell em linguagem assembly x86-64, demonstrando conceitos de programação de baixo nível e interação direta com o kernel através de syscalls do Linux. A implementação inclui funcionalidade básica de shell com comandos built-in e execução de programas externos, servindo como ferramenta educacional para compreensão de internals de sistemas operacionais.
@@ -161,6 +163,8 @@ Este projeto é ideal para:
 - ✅ **Parsing de argumentos** - Processa comandos com argumentos
 - ✅ **Buffering inteligente** - Processa múltiplas linhas de entrada eficientemente
 - ✅ **Navegação de diretórios** - Suporta caminhos absolutos e relativos
+- ✅ **Interface colorida** - Códigos ANSI para realce visual
+- ✅ **Símbolos visuais** - Identificação de tipos de arquivo ([DIR], [FILE])
 
 ## 📦 Requisitos
 
