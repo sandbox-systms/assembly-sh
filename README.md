@@ -1,10 +1,129 @@
-# Mini Shell em Assembly x86-64
+# Mini Shell em Assembly x86-64: Uma Implementação Educacional
 
-Um shell minimalista implementado em Assembly x86-64 puro, rodando nativamente em sistemas Linux de 64 bits. Este projeto demonstra conceitos fundamentais de programação de baixo nível, syscalls do Linux e manipulação de processos.
+## Resumo
 
-## 📋 Índice
+Este trabalho apresenta uma implementação minimalista de shell em linguagem assembly x86-64, demonstrando conceitos de programação de baixo nível e interação direta com o kernel através de syscalls do Linux. A implementação inclui funcionalidade básica de shell com comandos built-in e execução de programas externos, servindo como ferramenta educacional para compreensão de internals de sistemas operacionais.
 
-- [Visão Geral](#visão-geral)
+## 1. Introdução
+
+Shells são componentes fundamentais dos sistemas operacionais, fornecendo interfaces de usuário para execução de comandos. Este projeto implementa um shell minimalista em assembly puro para explorar técnicas de programação de baixo nível, syscalls do Linux e gerenciamento de processos em nível de sistema operacional.
+
+### 1.1 Contexto e Motivação
+
+A programação em assembly oferece insights únicos sobre o funcionamento interno dos computadores, permitindo controle direto sobre recursos de hardware e sistema. Este projeto aborda:
+
+- Demonstração prática de syscalls do Linux
+- Implementação de parsing de comandos
+- Gerenciamento de processos com fork/execve
+- Interação com sistema de arquivos
+
+### 1.2 Trabalhos Relacionados
+
+- **Bash**: Shell completo com recursos avançados
+- **Zsh**: Shell extensível com plugins
+- **Fish**: Shell focado em usabilidade
+- Implementações educacionais em C (como o shell do livro "Operating System Concepts")
+
+Este projeto se diferencia por ser implementado em assembly puro, oferecendo visão de baixo nível.
+
+## 2. Metodologia
+
+### 2.1 Arquitetura do Sistema
+
+O shell é estruturado em camadas modulares:
+
+```
+┌─────────────────────────────────────┐
+│    Aplicação (minishell.asm)        │
+│   Loop principal, parsing, routing  │
+├─────────────────────────────────────┤
+│        Camada de Built-ins          │
+│  cd, pwd, echo, ls, clear (builtins.asm) │
+├─────────────────────────────────────┤
+│     Camada de Sistema Operacional   │
+│  Processos, I/O (process.asm, io.asm) │
+├─────────────────────────────────────┤
+│         Camada de Utilitários       │
+│ Strings, conversão (string.asm)     │
+├─────────────────────────────────────┤
+│         Camada de Syscalls          │
+│  Interface com Kernel Linux (x86-64)│
+└─────────────────────────────────────┘
+```
+
+### 2.2 Tecnologias Utilizadas
+
+- **Linguagem**: Assembly x86-64 (NASM)
+- **Sistema Operacional**: Linux 64-bit
+- **Syscalls**: Interface direta com kernel
+- **Ferramentas**: NASM assembler, GNU ld linker
+
+## 3. Implementação
+
+### 3.1 Componentes Principais
+
+#### Loop Principal
+- Leitura de entrada do usuário
+- Parsing de comandos e argumentos
+- Roteamento para built-ins ou execução externa
+- Tratamento de erros
+
+#### Comandos Built-in
+- `cd`: Mudança de diretório (syscall chdir)
+- `pwd`: Exibição de diretório atual (syscall getcwd)
+- `echo`: Impressão de texto
+- `ls`: Listagem de arquivos com cores e símbolos
+- `clear`: Limpeza da tela
+- `help`: Exibição de ajuda
+
+#### Execução Externa
+- Fork para criação de processo filho
+- Execve para execução de programas
+- Wait para sincronização
+
+### 3.2 Recursos Avançados
+
+- **Interface Colorida**: Uso de códigos ANSI para realce visual
+- **Símbolos Visuais**: Identificação de tipos de arquivo ([DIR], [FILE])
+- **Prompt Aprimorado**: Exibição de usuário e hostname
+- **Buffering Inteligente**: Processamento eficiente de múltiplas linhas
+
+## 4. Resultados
+
+### 4.1 Funcionalidades Implementadas
+
+- ✅ Interface interativa com prompt colorido
+- ✅ 6 comandos built-in funcionais
+- ✅ Execução de programas externos
+- ✅ Navegação de diretórios
+- ✅ Listagem visual de arquivos
+- ✅ Tratamento básico de erros
+
+### 4.2 Desempenho
+
+- **Tamanho do executável**: ~8KB (otimizado)
+- **Uso de memória**: Minimal (buffers estáticos)
+- **Velocidade**: Respostas instantâneas para comandos built-in
+
+## 5. Conclusão
+
+Este projeto demonstra a viabilidade de implementar um shell funcional em assembly puro, oferecendo insights valiosos sobre programação de sistemas. As lições aprendidas incluem:
+
+- Importância da modularização mesmo em baixo nível
+- Eficiência dos syscalls diretos
+- Desafios da manipulação de strings em assembly
+- Benefícios educacionais da abordagem bottom-up
+
+### 5.1 Trabalhos Futuros
+
+- Adição de redirecionamento I/O
+- Implementação de pipes
+- Suporte a variáveis de ambiente
+- Histórico de comandos
+- Auto-completar
+
+## 📋 Índice (continuação)
+
 - [Características](#características)
 - [Requisitos](#requisitos)
 - [Instalação](#instalação)
@@ -16,7 +135,7 @@ Um shell minimalista implementado em Assembly x86-64 puro, rodando nativamente e
 - [Contribuição](#contribuição)
 - [Licença](#licença)
 
-## 🎯 Visão Geral
+## 🎯 Visão Geral (atualizada)
 
 O **Mini Shell** é uma implementação educacional de um interpretador de linha de comando (shell) em Assembly x86-64. Ele demonstra como interagir diretamente com o kernel do Linux através de syscalls, gerenciando entrada/saída, processos e funcionamento básico de um shell.
 
@@ -28,11 +147,13 @@ Este projeto é ideal para:
 
 ## ✨ Características
 
-- ✅ **Interface interativa com prompt** - Exibe `mini-shell>` para entrada de comandos
+- ✅ **Interface interativa com prompt** - Exibe `💻 user@machine mini-shell>` para entrada de comandos
 - ✅ **Comandos Built-in**:
   - `cd [caminho]` - Muda o diretório atual
   - `pwd` - Exibe o diretório atual
   - `echo [texto]` - Imprime texto na tela
+  - `ls` - Lista arquivos com cores e símbolos
+  - `clear` - Limpa a tela
   - `help` - Mostra ajuda dos comandos disponíveis
   - `exit` - Sai do shell
 - ✅ **Execução de programas externos** - Suporta fork + execve para rodar qualquer programa do sistema

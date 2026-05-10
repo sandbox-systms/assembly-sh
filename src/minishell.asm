@@ -20,12 +20,16 @@ global _start              ; Define o ponto de entrada do programa
 ; ========================================
 section .data
     ; Prompt exibido para o usuário
-    prompt db "mini-shell> "
+    prompt db "\033[32m", 0xF0, 0x9F, 0x92, 0xBB, " user@machine mini-shell> \033[0m"
     prompt_len equ $ - prompt
     prompt_zero db 0              ; Adiciona null terminator separadamente
     
     ; Comando para sair do shell
     exit_cmd db "exit", 0
+    
+    ; Mensagem de boas-vindas
+    welcome db "Bem-vindo ao Mini Shell Assembly!", 10, "Digite 'help' para ver os comandos disponíveis.", 10, 0
+    welcome_len equ $ - welcome
 
 ; ========================================
 ; Seção de dados não inicializados (BSS)
@@ -58,7 +62,12 @@ _start:
     ; Inicializar buffer tracking
     mov qword [buffer_consumed], 0
     mov qword [buffer_size], 0
-
+    
+    ; Exibir mensagem de boas-vindas
+    mov rsi, welcome
+    mov rdx, welcome_len
+    call print
+    
 .loop:
     ; Exibir o prompt na tela
     mov rsi, prompt
@@ -152,8 +161,10 @@ _start:
     je .builtin_echo_cmd
     cmp rcx, 4              ; help?
     je .builtin_help_cmd
-    cmp rcx, 5              ; exit?
-    je .exit
+    cmp rcx, 5              ; clear?
+    je .builtin_clear_cmd
+    cmp rcx, 6              ; ls?
+    je .builtin_ls_cmd
     
     jmp .advance_to_next_line
 
@@ -173,6 +184,14 @@ _start:
 
 .builtin_help_cmd:
     call builtin_help
+    jmp .advance_to_next_line
+
+.builtin_clear_cmd:
+    call builtin_clear
+    jmp .advance_to_next_line
+
+.builtin_ls_cmd:
+    call builtin_ls
     jmp .advance_to_next_line
 
 .empty_line:

@@ -1,2 +1,2 @@
 ; Declarações de funções built-in
-extern builtin_cd, builtin_pwd, builtin_echo, builtin_help
+extern builtin_cd, builtin_pwd, builtin_echo, builtin_help, builtin_clear, builtin_ls

@@ -21,6 +21,8 @@ section .data
     cmd_pwd db "pwd", 0
     cmd_echo db "echo", 0
     cmd_help db "help", 0
+    cmd_clear db "clear", 0
+    cmd_ls db "ls", 0
     cmd_exit db "exit", 0
 
 ; ========================================
@@ -207,12 +209,19 @@ is_builtin:
     test rax, rax
     jz .is_help
     
-    ; Comparar com "exit"
-    mov rsi, cmd_exit
+    ; Comparar com "clear"
+    mov rsi, cmd_clear
     mov rdi, r12
     call strcmp
     test rax, rax
-    jz .is_exit
+    jz .is_clear
+    
+    ; Comparar com "ls"
+    mov rsi, cmd_ls
+    mov rdi, r12
+    call strcmp
+    test rax, rax
+    jz .is_ls
     
     ; Não é built-in
     xor rax, rax
@@ -249,9 +258,16 @@ is_builtin:
     pop rsi
     ret
 
-.is_exit:
+.is_clear:
     mov rax, 1
     mov rcx, 5
+    pop r12
+    pop rsi
+    ret
+
+.is_ls:
+    mov rax, 1
+    mov rcx, 6
     pop r12
     pop rsi
     ret

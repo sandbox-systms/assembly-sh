@@ -3,12 +3,12 @@
 ; Implementa: cd, pwd, echo, help
 ; ========================================
 
-%include "include/syscalls.inc"
-%include "lib/io.inc"
-%include "lib/string.inc"
+%include "../include/syscalls.inc"
+%include "io.inc"
+%include "string.inc"
 
 ; Declarar funções globais
-global builtin_cd, builtin_pwd, builtin_echo, builtin_help
+global builtin_cd, builtin_pwd, builtin_echo, builtin_help, builtin_clear, builtin_ls
 
 ; ========================================
 ; Seção de dados
@@ -21,6 +21,8 @@ section .data
              db "cd [caminho]   - Mudar de diretório", NEWLINE
              db "pwd            - Mostrar diretório atual", NEWLINE
              db "echo [texto]   - Imprimir texto", NEWLINE
+             db "ls             - Listar arquivos com cores", NEWLINE
+             db "clear          - Limpar a tela", NEWLINE
              db "help           - Mostrar esta ajuda", NEWLINE
              db "exit           - Sair do shell", NEWLINE
              db "", NEWLINE
@@ -33,6 +35,12 @@ section .data
 section .bss
     ; Buffer para armazenar o diretório atual (getcwd)
     cwd_buffer resb 256
+    
+    ; Buffer para getdents
+    dents_buffer resb 1024
+    
+    ; Buffer para stat
+    stat_buf resb 144
 
 ; ========================================
 ; Seção de código
@@ -178,8 +186,231 @@ builtin_help:
     ret
 
 ; ========================================
+; Função: builtin_clear
+; Limpa a tela do terminal
+; Parâmetros: nenhum
+; Retorno: nada
+; ========================================
+builtin_clear:
+    mov rsi, clear_seq
+    mov rdx, clear_seq_len
+    call print
+    ret
+
+; ========================================
+; Função: builtin_ls
+; Lista arquivos do diretório atual com cores
+; Parâmetros: nenhum
+; Retorno: nada
+; ========================================
+builtin_ls:
+    push rbx
+    push r12
+    push r13
+    
+    ; Abrir diretório atual
+    mov rax, SYS_OPEN
+    mov rdi, dot
+    mov rsi, O_RDONLY
+    syscall
+    cmp rax, 0
+    jl .ls_error
+    mov r12, rax  ; fd
+    
+    ; Ler entradas do diretório
+    mov rdi, dents_buffer
+    mov rsi, 1024
+    mov rax, SYS_GETDENTS64
+    syscall
+    cmp rax, 0
+    jl .ls_error
+    mov r13, rax  ; total bytes
+    
+    ; Fechar fd
+    mov rax, SYS_CLOSE
+    mov rdi, r12
+    syscall
+    
+    ; Processar entradas
+    mov rbx, dents_buffer
+.loop_entries:
+    cmp rbx, dents_buffer
+    add rbx, r13
+    jge .ls_done
+    
+    ; Obter tamanho do registro
+    movzx rcx, word [rbx + 16]  ; d_reclen
+    
+    ; Obter nome
+    lea rsi, [rbx + 18]  ; d_name
+    
+    ; Verificar se é . ou ..
+    cmp byte [rsi], '.'
+    je .next_entry
+    
+    ; Obter tipo do arquivo
+    push rbx
+    push rcx
+    push r13
+    mov rdi, rsi
+    call get_file_type
+    ; rax = tipo (1=dir, 2=reg, 0=unknown)
+    
+    ; Imprimir com cor
+    call print_colored_name
+    pop r13
+    pop rcx
+    pop rbx
+    
+.next_entry:
+    add rbx, rcx
+    jmp .loop_entries
+    
+.ls_done:
+    ; Imprimir quebra de linha
+    mov rsi, newline
+    mov rdx, 1
+    call print
+    pop r13
+    pop r12
+    pop rbx
+    ret
+    
+.ls_error:
+    ; Imprimir mensagem de erro
+    mov rsi, ls_error_msg
+    mov rdx, ls_error_len
+    call print
+    pop r13
+    pop r12
+    pop rbx
+    ret
+
+; ========================================
+; Função auxiliar: get_file_type
+; Obtém o tipo do arquivo
+; Parâmetros: rdi = nome do arquivo
+; Retorno: rax = 1 (dir), 2 (reg), 0 (unknown)
+; ========================================
+get_file_type:
+    push rbx
+    mov rax, SYS_STAT
+    mov rsi, stat_buf
+    syscall
+    cmp rax, 0
+    jl .unknown_type
+    
+    ; Obter st_mode
+    mov rax, [stat_buf + 24]  ; st_mode
+    and rax, S_IFMT
+    cmp rax, S_IFDIR
+    je .is_dir
+    cmp rax, S_IFREG
+    je .is_reg
+    
+.unknown_type:
+    xor rax, rax
+    pop rbx
+    ret
+    
+.is_dir:
+    mov rax, 1
+    pop rbx
+    ret
+    
+.is_reg:
+    mov rax, 2
+    pop rbx
+    ret
+
+; ========================================
+; Função auxiliar: print_colored_name
+; Imprime nome com cor baseada no tipo
+; Parâmetros: rsi = nome, rax = tipo
+; ========================================
+print_colored_name:
+    push rsi
+    push rax
+    
+    cmp rax, 1
+    je .dir
+    cmp rax, 2
+    je .reg
+    ; default
+    mov rsi, unknown_symbol
+    mov rdx, unknown_symbol_len
+    call print
+    jmp .color
+    
+.dir:
+    mov rsi, dir_symbol
+    mov rdx, dir_symbol_len
+    call print
+    mov rsi, blue_prefix
+    jmp .color
+    
+.reg:
+    mov rsi, file_symbol
+    mov rdx, file_symbol_len
+    call print
+    mov rsi, green_prefix
+    
+.color:
+    mov rdx, 5
+    call print
+    
+    ; Imprimir nome
+    pop rax
+    pop rsi
+    push rsi
+    mov rdi, rsi
+    xor rdx, rdx
+.len_loop:
+    cmp byte [rdi + rdx], 0
+    je .len_done
+    inc rdx
+    jmp .len_loop
+.len_done:
+    call print
+    
+    ; Reset color
+    mov rsi, reset_color
+    mov rdx, 4
+    call print
+    
+    ; Espaço
+    mov rsi, space
+    mov rdx, 1
+    call print
+    
+    pop rsi
+    ret
+
+; ========================================
 ; Seção de dados (continuação)
 ; ========================================
 section .data
     home_dir db ".", 0
     newline db NEWLINE
+    clear_seq db "\033[2J\033[H"
+    clear_seq_len equ $ - clear_seq
+    
+    ; Para ls
+    dot db ".", 0
+    ls_error_msg db "Erro ao listar diretório", NEWLINE, 0
+    ls_error_len equ $ - ls_error_msg
+    
+    ; Cores ANSI
+    blue_prefix db "\033[34m"
+    green_prefix db "\033[32m"
+    white_prefix db "\033[37m"
+    reset_color db "\033[0m"
+    space db " "
+    
+    ; Símbolos para tipos de arquivo
+    dir_symbol db "[DIR] "
+    dir_symbol_len equ $ - dir_symbol
+    file_symbol db "[FILE] "
+    file_symbol_len equ $ - file_symbol
+    unknown_symbol db "[UNK] "
+    unknown_symbol_len equ $ - unknown_symbol
