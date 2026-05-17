@@ -381,9 +381,7 @@ make
 
 **Autor:** Manoel E. S. S
 
-**Email:** [seu email]
-
-**GitHub:** [seu repositório]
+**Email:** ghostnether28@gmail.com
 
 **Issues:** Use GitHub Issues para reportar bugs
 
@@ -401,6 +399,4 @@ Segue [Semantic Versioning 2.0.0](https://semver.org/):
 
 ---
 
-**Última atualização:** 24 de janeiro de 2026
-
-**Próxima revisão planejada:** 30 de janeiro de 2026
+**Próxima revisão planejada:** 22 de maio de 2026
